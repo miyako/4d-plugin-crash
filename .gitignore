@@ -1,3 +1,7 @@
 Crash/test/userPreferences.*
 Crash/build/*
 Crash/test/Project/DerivedData/*
+Crash/.vs/*
+Crash/Objs/*
+Crash/test/Plugins/crash.bundle/Contents/Windows64/crash.exp
+Crash/test/Plugins/crash.bundle/Contents/Windows64/crash.lib
