@@ -1,0 +1,11 @@
+{
+    "name": "Crash",
+    "id": 20000,
+    "commands": [
+        {
+            "theme": "Crash",
+            "syntax": "CRASH 4D",
+            "threadSafe": true
+        }
+    ]
+}
