@@ -22,7 +22,7 @@ Crash 4D on purpose. The plugin has one command, [CRASH 4D](#crash-4d), which ma
 - **It crashes the application that executes the code.** On 4D remote it crashes that client. In a method that runs on the server (for example one with the "Execute on server" property), it crashes 4D Server and disconnects every client.
 - **Thread safety:** the manifest declares the command thread-safe, so 4D accepts it in preemptive processes. The command hands the crash over to 4D's main process. Whether 4D performs that hand-off from a preemptive process has not been verified; test it on your version before relying on it there.
 - Requires 4D 20 or later (see the badge). The macOS build targets macOS 11.5 or later.
-- **macOS binary of release 1.0.0.** The macOS binary committed with `1.0.0` contains only an Apple silicon (`arm64`) slice, so it does not load on Intel Macs. Releases built by the current release workflow are universal (`arm64` and `x86_64`).
+- **Old `1.0.0` release.** The original `1.0.0` release (tag without `v`) contains only an Apple silicon (`arm64`) macOS binary, so it does not load on Intel Macs. `v1.0.0` and later, built by the release workflow, are universal (`arm64` and `x86_64`).
 
 ---
 
@@ -70,7 +70,7 @@ End if
 - **Nothing can catch it.** `ON ERR CALL` and other 4D error handlers don't run, because the crash is a fault in native code, not a 4D error.
 - **Unsaved data is lost.** Records being edited, variables and anything not yet written to the data file are gone, in every process. Check how your backup and journal settings handle the restart; see the 4D documentation on data file recovery for your version.
 - **Only use a test data file.** A crash in the middle of writes is exactly when a data file may need verifying or repairing, so run these tests on a copy.
-- **4D doesn't load the plugin on an Intel Mac.** You have the arm64-only `1.0.0` binary. Use a release built by the current workflow.
+- **4D doesn't load the plugin on an Intel Mac.** You have the arm64-only `1.0.0` release. Use `v1.0.0` or later.
 - **No crash when called in a preemptive process?** The preemptive case is not verified (see [Requirements & platform notes](#requirements--platform-notes)). Call [CRASH 4D](#crash-4d) from a cooperative process instead.
 
 The test database also contains a method (`メソッド2.4dm`) that brings 4D down without the plugin, by allocating memory until it runs out. It is not part of the plugin:
@@ -96,4 +96,4 @@ CRASH 4D  // 4D terminates here; nothing after this line runs
 
 ## Releases
 
-Download the plugin from the [Releases](https://github.com/miyako/4d-plugin-crash/releases) page. Releases after `1.0.0` are tagged `vX.Y.Z` and built, signed and notarized by the release workflow.
+Download the plugin from the [Releases](https://github.com/miyako/4d-plugin-crash/releases) page. Releases from `v1.0.0` are tagged `vX.Y.Z` and built, signed and notarized by the release workflow.
