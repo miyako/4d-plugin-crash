@@ -96,4 +96,67 @@ CRASH 4D  // 4D terminates here; nothing after this line runs
 
 ## Releases
 
-Download the plugin from the [Releases](https://github.com/miyako/4d-plugin-crash/releases) page. Releases from `v1.0.0` are tagged `vX.Y.Z` and built, signed and notarized by the release workflow.
+Download the plugin from the [Releases](https://github.com/miyako/4d-plugin-crash/releases) page. Releases from `v1.0.0` are tagged `vX.Y.Z` and built, signed and notarized by **Build**.
+
+### Maintainer lifecycle
+
+**Bump version** is manual and source-only. Select the branch explicitly in
+Actions, then choose patch, minor or major. It checks out immutable `github.sha`,
+requires a clean checkout and an unchanged remote branch, validates the source
+metadata, and commits exactly one direct child. A mandatory executable pre-push
+guard checks the server-advertised old SHA against the selected SHA and accepts
+exactly one update to the selected branch. Late advances, rewinds, deletions and
+same-result races fail closed. The non-force push disables followed tags.
+No tag, release or automatic Build is triggered. A rejected push requires a new
+dispatch against the current branch; do not force-push the prepared commit.
+
+**Build** is a separate manual dispatch with **zero inputs**. Select the desired
+branch/commit in Actions (or `gh workflow run release.yml --ref BRANCH`).
+Every job checks out the same immutable `github.sha`. The strict source `X.Y.Z`
+determines `vX.Y.Z`, `crash-X.Y.Z.zip` and `crash-X.Y.Z.dmg`; existing tags
+cannot be used to rebuild or overwrite a release.
+
+Source authority is the coordinated `MARKETING_VERSION` and
+`CURRENT_PROJECT_VERSION` in all three project configurations, as promised by
+the original Bump header and the modernization commit `0b4478e`. Both must
+agree with source `Info.plist` and both localized display strings in
+`English.lproj/InfoPlist.strings`. Applicable literal keys are co-bumped;
+supported Xcode references stay references and absent `CFBundleVersion` stays
+absent. Prebuilt `test/Plugins`, native dependencies, 4D project/data files,
+schema and unrelated counters are not version authority or bump targets.
+This migration keeps the existing `1.0.0`; no stale source repair was needed.
+
+Build serializes publication repository-wide across branches without cancelling
+running jobs. It checks remote tags and authenticated, paginated releases
+(including drafts) before any native work and again immediately after every
+build/package/sign/notarize/staple gate. All pages and entries must validate;
+404, authentication, network and malformed responses are errors, not absence.
+Only a complete successful no-match permits creation.
+
+Publication creates a new lightweight tag at the exact selected SHA and verifies
+it remotely, then POSTs a new non-draft, non-prerelease release with empty notes,
+preserving the original notes policy. Assets are separately POSTed to the
+returned new release ID. It never updates, deletes, clobbers, rolls back or
+retries remote state, including when another publisher wins a same-SHA race.
+
+### Native gates and recovery
+
+Windows still uses Release/x64 MSBuild with v143 and Windows SDK 10.0.
+macOS still uses Xcode's Default configuration, macOS 11.5, and both arm64 and
+x86_64; the legacy Deployment-only local notarization phase remains unchanged.
+Committed resources and Windows binaries are merged into the same bundle.
+Universal-binary/resource checks, Developer ID signing verification, ZIP and
+DMG notarization acceptance and DMG stapling remain mandatory. The existing
+certificate/keychain/notary secret names are unchanged; unavailable credentials
+or native tooling must fail rather than bypass these gates. The 4D test methods
+intentionally crash the host and are not executed by these workflows.
+
+If publication fails after creation, the tag, release and any earlier uploaded
+assets remain. Inspect the workflow error and retained remote state manually.
+Do not rerun the same version expecting automatic repair: availability checks
+will reject it. A maintainer must decide how to recover the partial release;
+for a new complete publication, bump source metadata and dispatch Build again.
+This automation performs no cleanup or overwrite.
+
+Local non-native regressions: `python3 -B -m unittest discover -s .github/tests`.
+Workflow lint: `actionlint .github/workflows/*.yml`.
